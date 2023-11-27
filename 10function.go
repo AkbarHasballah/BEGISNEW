@@ -43,21 +43,36 @@ func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Re
 	db := client.Database(dbname)
 	collection := db.Collection(collectionname)
 
-	// Ambil parameter koordinat dari request
-	latitude := r.URL.Query().Get("latitude")
-	longitude := r.URL.Query().Get("longitude")
+	// Ambil parameter koordinat dari request (koordinat untuk membentuk poligon)
+	coordinatesStr := r.URL.Query().Get("coordinates")
+	coordinates := strings.Split(coordinatesStr, ",")
+	if len(coordinates) < 6 {
+		fmt.Println("Koordinat untuk membentuk poligon tidak valid.")
+		return
+	}
 
-	// Buat GeoJSON Point dari parameter koordinat
-	point := bson.M{
-		"type":        "Point",
-		"coordinates": []interface{}{longitude, latitude},
+	// Buat GeoJSON Polygon dari parameter koordinat
+	polygon := bson.M{
+		"type":        "Polygon",
+		"coordinates": [][]interface{}{},
+	}
+
+	// Konversi koordinat menjadi format yang sesuai untuk GeoJSON
+	for i := 0; i < len(coordinates); i += 2 {
+		lng, errLng := strconv.ParseFloat(coordinates[i], 64)
+		lat, errLat := strconv.ParseFloat(coordinates[i+1], 64)
+		if errLng != nil || errLat != nil {
+			fmt.Println("Koordinat tidak valid.")
+			return
+		}
+		polygon["coordinates"] = append(polygon["coordinates"].([][]interface{}), []interface{}{lng, lat})
 	}
 
 	// Buat filter untuk geoIntersects query
 	filter := bson.M{
 		"geometry": bson.M{
 			"$geoIntersects": bson.M{
-				"$geometry": point,
+				"$geometry": polygon,
 			},
 		},
 	}
@@ -80,6 +95,7 @@ func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Re
 	// Proses hasil query sesuai kebutuhan
 	fmt.Println("Hasil geoIntersects query:", results)
 }
+
 func GeoWithin(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
 	connString := os.Getenv(MONGOCONNSTRINGENV)
@@ -109,21 +125,36 @@ func GeoWithin(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Reques
 	db := client.Database(dbname)
 	collection := db.Collection(collectionname)
 
-	// Ambil parameter koordinat dari request
-	latitude := r.URL.Query().Get("latitude")
-	longitude := r.URL.Query().Get("longitude")
+	// Ambil parameter koordinat dari request (koordinat untuk membentuk poligon)
+	coordinatesStr := r.URL.Query().Get("coordinates")
+	coordinates := strings.Split(coordinatesStr, ",")
+	if len(coordinates) < 6 {
+		fmt.Println("Koordinat untuk membentuk poligon tidak valid.")
+		return
+	}
 
-	// Buat GeoJSON Point dari parameter koordinat
-	point := bson.M{
-		"type":        "Point",
-		"coordinates": []interface{}{longitude, latitude},
+	// Buat GeoJSON Polygon dari parameter koordinat
+	polygon := bson.M{
+		"type":        "Polygon",
+		"coordinates": [][]interface{}{},
+	}
+
+	// Konversi koordinat menjadi format yang sesuai untuk GeoJSON
+	for i := 0; i < len(coordinates); i += 2 {
+		lng, errLng := strconv.ParseFloat(coordinates[i], 64)
+		lat, errLat := strconv.ParseFloat(coordinates[i+1], 64)
+		if errLng != nil || errLat != nil {
+			fmt.Println("Koordinat tidak valid.")
+			return
+		}
+		polygon["coordinates"] = append(polygon["coordinates"].([][]interface{}), []interface{}{lng, lat})
 	}
 
 	// Buat filter untuk geoWithin query
 	filter := bson.M{
 		"geometry": bson.M{
 			"$geoWithin": bson.M{
-				"$geometry": point,
+				"$geometry": polygon,
 			},
 		},
 	}
@@ -146,6 +177,7 @@ func GeoWithin(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Reques
 	// Proses hasil query sesuai kebutuhan
 	fmt.Println("Hasil geoWithin query:", results)
 }
+
 func Near(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
 	connString := os.Getenv(MONGOCONNSTRINGENV)
@@ -731,7 +763,7 @@ func ParseCoordinatesPolygon(coordStr string) []float64 {
 	for _, coord := range coords {
 		val, err := strconv.ParseFloat(coord, 64)
 		if err != nil {
-			fmt.Printf("Kesalahan saat mengonversi koordinat: %v\n", err)
+			fmt.Printf("Kesalahan saat mengonversi koordinat buos: %v\n", err)
 		}
 		coordinates = append(coordinates, val)
 	}
