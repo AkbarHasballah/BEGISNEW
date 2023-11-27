@@ -23,7 +23,7 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Set CORS headers for the main request.
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, BEGIS.GCFCreateLineStringgg("MONGOSTRING", "GIS ", "DataJson", r))
+	fmt.Fprintf(w, BEGIS.GeoIntersects("MONGOSTRING", "GIS ", "DataJson", r))
 
 }
 func GetToken(r *http.Request) string {
