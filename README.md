@@ -1,5 +1,4 @@
-# dzikri7
-Dzikri
+# Salman Akbar
 
 
 ```sh

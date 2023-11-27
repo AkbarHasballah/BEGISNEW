@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	BEGIS "github.com/AkbarHasballah/BEGISNEW"
+	BEGIS "github.com/AkbarHasballah/GISNEW"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// Set CORS headers for the main request.
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, BEGIS.GeoIntersects("MONGOSTRING", "GIS ", "DataJson", r))
+	fmt.Fprintf(w, BEGIS.GeoIntersects("MONGOSTRING", "MigrasiData ", "JsonMongo", r))
 
 }
 func GetToken(r *http.Request) string {
