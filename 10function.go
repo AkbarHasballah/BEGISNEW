@@ -15,32 +15,14 @@ import (
 )
 
 func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
-	// Ambil nilai lingkungan MongoDB Connection String
-	DBString := os.Getenv(MONGOCONNSTRINGENV)
-	if DBString == "" {
-		fmt.Println("MongoDB Connection String tidak ditemukan.")
-		return
-	}
-
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
-	if err != nil {
-		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
+	db := SetConnection(MONGOCONNSTRINGENV, dbname)
+	if db == nil {
+		fmt.Println("Gagal menghubungkan ke MongoDB.")
 		return
 	}
 
-	// Tunggu hingga koneksi tersambung
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		fmt.Printf("Kesalahan saat menghubungkan ke MongoDB: %v\n", err)
-		return
-	}
-	defer client.Disconnect(ctx)
-
-	// Pilih database dan koleksi
-	db := client.Database(dbname)
+	// Pilih koleksi
 	collection := db.Collection(collectionname)
 
 	// Ambil parameter koordinat dari request (koordinat untuk membentuk poligon)
@@ -78,16 +60,16 @@ func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Re
 	}
 
 	// Lakukan query
-	cursor, err := collection.Find(ctx, filter)
+	cursor, err := collection.Find(context.Background(), filter)
 	if err != nil {
 		fmt.Printf("Kesalahan saat menjalankan geoIntersects query: %v\n", err)
 		return
 	}
-	defer cursor.Close(ctx)
+	defer cursor.Close(context.Background())
 
 	// Menggunakan cursor untuk melakukan sesuatu, misalnya mengambil hasil query
 	var results []bson.M
-	if err := cursor.All(ctx, &results); err != nil {
+	if err := cursor.All(context.Background(), &results); err != nil {
 		fmt.Printf("Kesalahan saat mengambil hasil query: %v\n", err)
 		return
 	}

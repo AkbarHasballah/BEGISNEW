@@ -27,6 +27,7 @@ func IsAuthorized(username string, mconn *mongo.Client, collectionname string) b
 	return result.Err() == nil // Assume the user is authorized if there are no errors in the query
 }
 
+
 func SetConnection(MONGOCONNSTRINGENV, dbname string) *mongo.Database {
 	var DBmongoinfo = atdb.DBInfo{
 		DBString: os.Getenv(MONGOCONNSTRINGENV),
