@@ -16,14 +16,14 @@ import (
 
 func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -180,14 +180,14 @@ func GeoWithin(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Reques
 
 func Near(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -246,14 +246,14 @@ func Near(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 }
 func NearSphere(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -312,14 +312,14 @@ func NearSphere(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Reque
 }
 func Box(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -395,14 +395,14 @@ func parseCoordinate(coordStr string) float64 {
 }
 func Center(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -473,14 +473,14 @@ func ParseRadius(radiusStr string) float64 {
 }
 func GeometryFix(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -539,14 +539,14 @@ func GeometryFix(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 }
 func MaxDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -614,14 +614,14 @@ func MaxDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 }
 func MinDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -689,14 +689,14 @@ func MinDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 }
 func Polygon(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
