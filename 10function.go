@@ -98,14 +98,14 @@ func GeoIntersects(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Re
 
 func GeoWithin(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
-	connString := os.Getenv(MONGOCONNSTRINGENV)
-	if connString == "" {
+	DBString := os.Getenv(MONGOCONNSTRINGENV)
+	if DBString == "" {
 		fmt.Println("MongoDB Connection String tidak ditemukan.")
 		return
 	}
 
 	// Set up koneksi ke MongoDB
-	client, err := mongo.NewClient(options.Client().ApplyURI(connString))
+	client, err := mongo.NewClient(options.Client().ApplyURI(DBString))
 	if err != nil {
 		fmt.Printf("Kesalahan saat membuat klien MongoDB: %v\n", err)
 		return
@@ -510,7 +510,7 @@ func GeometryFix(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 		"coordinates": []float64{parseCoordinate(longitude), parseCoordinate(latitude)},
 	}
 
-	// Buat filter untuk geometri query
+	// Buat filter untuk geometri queryt
 	filter := bson.M{
 		"geometry": bson.M{
 			"$geoIntersects": bson.M{

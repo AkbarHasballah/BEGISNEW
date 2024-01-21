@@ -649,7 +649,7 @@ func GCFCreateLineStringgg(MONGOCONNSTRINGENV, dbname, collectionname string, r 
 		// Perform the action (e.g., PostLinestring)
 		err := PostLinestring(mconn, collectionname, dataline)
 		if err != nil {
-			return GCFReturnStruct(CreateResponse(false, "Data Sukses terinput Coy", dataline))
+			return GCFReturnStruct(CreateResponse(false, "Data Sukses terinput Coy", nil))
 		}
 		// Success
 		return GCFReturnStruct(CreateResponse(true, "Success: LineString created", dataline))
