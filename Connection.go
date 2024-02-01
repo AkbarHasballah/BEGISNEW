@@ -38,13 +38,13 @@ func SetConnection(MONGOCONNSTRINGENVSTRINGENV, dbname string) *mongo.Database {
 	return atdb.MongoConnect(DBmongoinfo)
 }
 
-func SetConnection2dsphere(mongoenv, dbname, collname string) *mongo.Database {
+func SetConnection2dsphere(MONGOCONNSTRINGENV, dbname, collname string) *mongo.Database {
 	var DBmongoinfo = models.DBInfo2{
-		DBString:       os.Getenv(mongoenv),
+		DBString:       os.Getenv(MONGOCONNSTRINGENV),
 		DBName:         dbname,
 		CollectionName: collname,
 	}
-	return helpers.Create2dsphere(DBmongoinfo)
+	return Create2dsphere(DBmongoinfo)
 }
 
 func GetAllBangunanLineString(MONGOCONNSTRINGENV *mongo.Database, collection string) []GeoJson {
@@ -591,7 +591,7 @@ func DeleteOneDoc(MONGOCONNSTRINGENV *mongo.Database, collection string, filter 
 	return
 }
 
-func Create2dsphere(mconn atdb.DBInfo) (MONGOCONNSTRINGENV *mongo.Database) {
+func Create2dsphere(mconn models.DBInfo2) (MONGOCONNSTRINGENV *mongo.Database) {
 	clientOptions := options.Client().ApplyURI((mconn.DBString))
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -599,7 +599,7 @@ func Create2dsphere(mconn atdb.DBInfo) (MONGOCONNSTRINGENV *mongo.Database) {
 	}
 
 	// Mengecek apakah indeks sudah ada
-	collection := client.Database(mconn.DBName).Collection(mconn.x)
+	collection := client.Database(mconn.DBName).Collection(mconn.CollectionName)
 	cursor, err := collection.Indexes().List(context.TODO())
 	if err != nil {
 		fmt.Printf("Error listing indexes: %v", err)
@@ -625,7 +625,7 @@ func Create2dsphere(mconn atdb.DBInfo) (MONGOCONNSTRINGENV *mongo.Database) {
 			},
 		}
 
-		_, err = client.Database(mconn.DBName).Collection(mconn.DBName).Indexes().CreateOne(context.TODO(), indexModel)
+		_, err = client.Database(mconn.DBName).Collection(mconn.CollectionName).Indexes().CreateOne(context.TODO(), indexModel)
 		if err != nil {
 			fmt.Printf("Error creating geospatial index: %v", err)
 		}

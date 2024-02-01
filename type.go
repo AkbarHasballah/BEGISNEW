@@ -153,3 +153,8 @@ type BeriPesan struct {
 	Message string `json:"message" bson:"message"`
 	Token   string `json:"token,omitempty" bson:"token,omitempty"`
 }
+type DBInfo2 struct {
+	DBString       string
+	DBName         string
+	CollectionName string
+}

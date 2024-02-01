@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-
 )
 
-func CreatetGeojsonPoint(MONGOCONNSTRINGENV,publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
+func CreatetGeojsonPoint(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
 	response.Status = false
@@ -142,7 +141,7 @@ func MembuatGeojsonPolygon(publickey, MONGOCONNSTRINGENV, dbname, collname strin
 	return GCFReturnStruct(response)
 }
 
-func PostGeoIntersects(publickey, MONGOCONNSTRINGENV, dbname, collname string ,r *http.Request) string {
+func PostGeoIntersects(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
 	var coordinate Point
@@ -230,197 +229,310 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 	return GCFReturnStruct(geowithin)
 }
 
-func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection2dsphere(MONGOCONNSTRINGENV, dbname, collname)
+	var response BeriPesan
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
 	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	near := Near(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: near})
+	return GCFReturnStruct(near)
 }
 
-func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection2dsphere(MONGOCONNSTRINGENV, dbname, collname)
+	var response BeriPesan
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
 	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	nearsphere := NearSphere(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: nearsphere})
+	return GCFReturnStruct(nearsphere)
 }
 
-func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var response BeriPesan
 	var coordinate Polyline
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	box := Box(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: box})
+	return GCFReturnStruct(box)
 }
 
-func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	var response BeriPesan
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	box := Center(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: box})
+	return GCFReturnStruct(box)
 }
 
-func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var response BeriPesan
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
-	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
 	}
 
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
+	}
 	box := CenterSphere(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: box})
+	return GCFReturnStruct(box)
 }
 
-func PostMaxDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostMaxDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var response BeriPesan
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	box := MaxDistance(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: box})
+	return GCFReturnStruct(box)
 }
 
-func PostMinDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string) string {
+func PostMinDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var response BeriPesan
 	var coordinate Point
-	err := c.BindJSON(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&coordinate)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, Pesan{Status: false, Message: "Error parsing application/json: " + err.Error()})
+		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	// Otorisasi
-	Otorisasi(publickey)(c)
-	if c.IsAborted() {
+	var auth User
+	header := r.Header.Get("token")
+	if header == "" {
+		response.Message = "Header token tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-	role := c.GetString("role")
-	// Cek role
-	if role != "owner" {
-		if role != "dosen" {
-			c.JSON(http.StatusUnauthorized, Pesan{Status: false, Message: "Anda tidak memiliki akses"})
-			c.Abort()
-			return GCFReturnStruct(response)
-		}
+
+	// Decode token to get user details
+
+	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
+	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
+	auth.Username = tokenusername
+
+	if tokenusername == "" || tokenrole == "" {
+		response.Message = "Hasil decode tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user account exists
+	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
+		response.Message = "Akun tidak ditemukan"
+		return GCFReturnStruct(response)
+	}
+
+	// Check if the user has admin or user privileges
+	if tokenrole != "admin" && tokenrole != "user" {
+		response.Message = "Anda tidak memiliki akses"
+		return GCFReturnStruct(response)
 	}
 
 	box := MinDistance(mconn, collname, coordinate)
-	c.JSON(http.StatusOK, Pesan{Status: true, Message: box})
+	return GCFReturnStruct(box)
 }
 
-func AmbilDataGeojson(MONGOCONNSTRINGENV, dbname, collname string) string {
+func AmbilDataGeojson(MONGOCONNSTRINGENV, dbname, collname string) []GeoJson {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	datagedung := GetAllBangunan(mconn, collname)
-	c.JSON(http.StatusOK, datagedung)
+	return datagedung
 }
