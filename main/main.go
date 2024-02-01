@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
-	gisbdg "github.com/InformasiwisataBandung/BackendGO"
+	BEGIS "github.com/AkbarHasballah/GISNEW"
 )
 
 func main() {
 	http.HandleFunc("/", HelloHTTP)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":3000", nil)
 }
 func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set CORS headers for the preflight request
@@ -21,13 +20,10 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
+
 	// Set CORS headers for the main request.
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var tempat BackendGO.TempatWisata // Membuat variabel tempat
-	err := gisbdg.CreateWisata("publickey", "MONGOSTRING", "InformasiWisataBandung", "TempatWisata", tempat, r)
-	if err != nil {
-		fmt.Fprintf(w, "Error: %s", err.Error()) // Mengonversi error ke string dan menampilkannya
-		return
-	}
-	fmt.Fprintf(w, "Success") // Jika tidak ada error
+
+	// Call GeoIntersects and check for errors
+	BEGIS.GeoIntersects("MONGOSTRING", "MigrasiData", "JsonMongo", r)
 }

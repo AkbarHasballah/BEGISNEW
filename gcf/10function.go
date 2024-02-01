@@ -1,4 +1,4 @@
-package BEGIS
+/*package gcf
 
 import (
 	"context"
@@ -519,7 +519,7 @@ func GeometryFix(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 	// Proses hasil query sesuai kebutuhan
 	fmt.Println("Hasil geometri query:", results)
 }
-func MaxDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
+func MaxDistance1(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
 	DBString := os.Getenv(MONGOCONNSTRINGENV)
 	if DBString == "" {
@@ -594,7 +594,7 @@ func MaxDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 	// Proses hasil query sesuai kebutuhan
 	fmt.Println("Hasil geometri query dengan $maxDistance:", results)
 }
-func MinDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
+func MinDistance1(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
 	DBString := os.Getenv(MONGOCONNSTRINGENV)
 	if DBString == "" {
@@ -669,7 +669,7 @@ func MinDistance(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Requ
 	// Proses hasil query sesuai kebutuhan
 	fmt.Println("Hasil geometri query dengan $minDistance:", results)
 }
-func Polygon(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
+func Polygons(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) {
 	// Ambil nilai lingkungan MongoDB Connection String
 	DBString := os.Getenv(MONGOCONNSTRINGENV)
 	if DBString == "" {
@@ -751,3 +751,4 @@ func ParseCoordinatesPolygon(coordStr string) []float64 {
 	}
 	return coordinates
 }
+*/

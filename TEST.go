@@ -25,22 +25,6 @@ func TestDeleteUser(t *testing.T) {
 	DeleteUser(mconn, "user", userdata)
 }
 
-func CreateNewUserToken(t *testing.T) {
-	var userdata User
-	userdata.Username = "dzikri"
-	userdata.Password = "dzikri"
-	userdata.Role = "admin"
-
-	// Create a MongoDB connection
-	mconn := SetConnection("MONGOSTRING", "petapedia")
-
-	// Call the function to create a user and generate a token
-	err := CreateUserAndAddToken("your_private_key_env", mconn, "user", userdata)
-
-	if err != nil {
-		t.Errorf("Error creating user and token: %v", err)
-	}
-}
 
 func TestGFCPostHandlerUser(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "petapedia")
@@ -129,11 +113,4 @@ func CreateContent(t *testing.T) {
 	CreateNewContent(mconn, "content", contentdata)
 }
 
-func TestUserFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "petapedia")
-	var userdata User
-	userdata.Username = "dzikri"
-	userdata.Password = "dzikri"
-	userdata.Role = "admin"
-	CreateUser(mconn, "user", userdata)
-}
+
