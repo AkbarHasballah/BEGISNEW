@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	BEGIS "github.com/AkbarHasballah/GISNEW"
@@ -25,5 +26,6 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// Call GeoIntersects and check for errors
-	BEGIS.GeoIntersects("MONGOSTRING", "MigrasiData", "JsonMongo", r)
+	fmt.Fprintf(w, BEGIS.LoginHandler("token", "privatekey", "MONGOSTRING", "InformasiWisataBandung", "Users", r))
+	//BEGIS.MembuatGeojsonPolyline("publickey","MONGOSTRING", "MigrasiData", "JsonMongo", r)
 }

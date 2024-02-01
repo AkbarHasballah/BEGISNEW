@@ -87,8 +87,8 @@ func CreateNewUserRole(MONGOCONNSTRINGENV *mongo.Database, collection string, us
 	// Insert the user data into the database
 	return atdb.InsertOneDoc(MONGOCONNSTRINGENV, collection, userdata)
 }
-func usernameExists(MONGOCONNSTRINGENVSTRINGENV, dbname string, userdata User) bool {
-	mconn := SetConnection(MONGOCONNSTRINGENVSTRINGENV, dbname).Collection("Users")
+func usernameExists(MONGOCONNSTRINGENV, dbname string, userdata User) bool {
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname).Collection("Users")
 	filter := bson.M{"username": userdata.Username}
 
 	var user User
