@@ -35,11 +35,7 @@ func CreatetGeojsonPoint(publickey, MONGOCONNSTRINGENV, dbname, collname string,
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -118,11 +114,7 @@ func MembuatGeojsonPolygon(publickey, MONGOCONNSTRINGENV, dbname, collname strin
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -162,11 +154,7 @@ func PostGeoIntersects(publickey, MONGOCONNSTRINGENV, dbname, collname string, r
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -206,11 +194,7 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -251,11 +235,7 @@ func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Re
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -295,11 +275,7 @@ func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *h
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -338,11 +314,7 @@ func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Req
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -381,11 +353,7 @@ func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -424,11 +392,7 @@ func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r 
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -466,11 +430,7 @@ func PostMaxDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -509,11 +469,7 @@ func PostMinDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
+	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
