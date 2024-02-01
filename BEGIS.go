@@ -40,10 +40,6 @@ func Otorisasi(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.R
 	}
 
 	// Check if the user exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
 
 	// Successful token decoding and user validation
 	response.Message = "Berhasil decode token"
