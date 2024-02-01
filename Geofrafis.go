@@ -80,12 +80,6 @@ func MembuatGeojsonPolyline(publickey, MONGOCONNSTRINGENV, dbname, collname stri
 		return GCFReturnStruct(response)
 	}
 
-	// Check if the user account exists
-	if !usernameExists(MONGOCONNSTRINGENV, dbname, auth) {
-		response.Message = "Akun tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
