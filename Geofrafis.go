@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func CreatetGeojsonPoint(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
@@ -34,8 +35,6 @@ func CreatetGeojsonPoint(publickey, MONGOCONNSTRINGENV, dbname, collname string,
 		response.Message = "Hasil decode tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-
-	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -114,8 +113,6 @@ func MembuatGeojsonPolygon(publickey, MONGOCONNSTRINGENV, dbname, collname strin
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
@@ -130,8 +127,8 @@ func MembuatGeojsonPolygon(publickey, MONGOCONNSTRINGENV, dbname, collname strin
 func PostGeoIntersects(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -154,17 +151,31 @@ func PostGeoIntersects(publickey, MONGOCONNSTRINGENV, dbname, collname string, r
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
 		return GCFReturnStruct(response)
 	}
 
-	geointersects := GeoIntersects(mconn, collname, coordinate)
+	geointersects, err := GeoIntersects(mconn, collname, geospatial)
+	if err != nil {
+		response.Message = "GetGeoInterDOc Error Coyz: " + err.Error()
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(geointersects)
+	if result == "" {
+		response.Message = "Geojson yang bersinggungan dengan geometry anda adalah" + result
+	}
 	response.Message = "Berhasil input data"
 	return GCFReturnStruct(geointersects)
+}
+func GeojsonNameString(geojson []FullGeoJson) (result string) {
+	var names []string
+	for _, geojson := range geojson {
+		names = append(names, geojson.Properties.Name)
+	}
+	result = strings.Join(names, ", ")
+	return result
 }
 
 func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
@@ -193,8 +204,6 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 		response.Message = "Hasil decode tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-
-	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -235,8 +244,6 @@ func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Re
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
@@ -275,8 +282,6 @@ func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *h
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
@@ -313,8 +318,6 @@ func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Req
 		response.Message = "Hasil decode tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-
-	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -353,8 +356,6 @@ func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
@@ -392,8 +393,6 @@ func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r 
 		return GCFReturnStruct(response)
 	}
 
-	
-
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
@@ -429,8 +428,6 @@ func PostMaxDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *
 		response.Message = "Hasil decode tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-
-	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {
@@ -468,8 +465,6 @@ func PostMinDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *
 		response.Message = "Hasil decode tidak ditemukan"
 		return GCFReturnStruct(response)
 	}
-
-	
 
 	// Check if the user has admin or user privileges
 	if tokenrole != "admin" && tokenrole != "user" {

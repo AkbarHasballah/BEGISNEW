@@ -6,8 +6,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Userkredensial struct{
-Status  bool   `json:"status" bson:"status"`
+type Userkredensial struct {
+	Status  bool   `json:"status" bson:"status"`
 	Data    User   `json:"data,omitempty" bson:"data,omitempty"`
 	Message string `json:"message,omitempty" bson:"message,omitempty"`
 }
@@ -25,8 +25,6 @@ type GeometryPoint struct {
 	Coordinates []float64 `json:"coordinates" bson:"coordinates"`
 	Type        string    `json:"type" bson:"type"`
 }
-
-
 
 type User struct {
 	No_whatsapp string `json:"no_whatsapp,omitempty" bson:"no_whatsapp"`
@@ -157,4 +155,11 @@ type DBInfo2 struct {
 	DBString       string
 	DBName         string
 	CollectionName string
+}
+type Geospatial struct {
+	Type        string      `json:"type" bson:"type"`
+	Coordinates interface{} `json:"coordinates" bson:"coordinates"`
+	Max         float64     `json:"max,omitempty" bson:"max,omitempty"`
+	Min         float64     `json:"min,omitempty" bson:"min,omitempty"`
+	Radius      float64     `json:"radius,omitempty" bson:"radius,omitempty"`
 }

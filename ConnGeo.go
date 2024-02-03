@@ -21,8 +21,8 @@ func GetAllBangunan(MONGOCONNSTRINGENV *mongo.Database, collname string) []GeoJs
 	return GetAllDoc[[]GeoJson](MONGOCONNSTRINGENV, collname)
 }
 
-func GeoIntersects(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetGeoIntersectsDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func GeoIntersects(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial)([]FullGeoJson, error){
+	return GetGeoIntersectsDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry",geospatial)
 }
 
 func GeoWithin(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polygon) string {

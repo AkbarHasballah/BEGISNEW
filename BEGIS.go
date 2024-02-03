@@ -52,7 +52,7 @@ func Otorisasi(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.R
 
 func GCFHandler(MONGOCONNSTRINGENV, dbname, collectionname string) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	datagedung := GetAllUser(mconn, collectionname)
+	datagedung := GetAllBangunan(mconn, collectionname)
 	return GCFReturnStruct(datagedung)
 }
 

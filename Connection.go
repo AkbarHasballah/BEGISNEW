@@ -336,23 +336,30 @@ func GetAllDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collection string) (do
 	return
 }
 
-func GetGeoIntersectsDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
+func GetGeoIntersectsDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string,locfield string, geospatial Geospatial) (result []T,err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$geoIntersects": bson.M{
 				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": coordinates.Coordinates,
+					"type":        geospatial.Type,
+					"coordinates": geospatial.Coordinates,
 				},
 			},
 		},
 	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("GeoIntersects: %v\n", err)
+		fmt.Printf("GetGeoIntersectsDoc: %v\n", err)
+		return nil, err
 	}
-	return "Koordinat anda bersinggungan dengan " + doc.Properties.Name
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetGeoIntersectsDoc Cursor Err: %v\n", err)
+		return nil, err
+	}
+	return result, nil
 }
 func GetGeoWithinDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polygon) (result string) {
 	filter := bson.M{

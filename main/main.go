@@ -26,6 +26,7 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// Call GeoIntersects and check for errors
-	fmt.Fprintf(w, BEGIS.LoginHandler("token", "privatekey", "MONGOSTRING", "InformasiWisataBandung", "Users", r))
-	//BEGIS.MembuatGeojsonPolyline("publickey","MONGOSTRING", "MigrasiData", "JsonMongo", r)
+	// Tulis respons Anda ke Writer seperti yang Anda lakukan sebelumnya.
+	response := BEGIS.PostGeoIntersects("publickey","MONGOCONNSTRINGENV", "MigrasiData", "JsonMongo",r)
+	fmt.Fprintf(w, response)
 }
