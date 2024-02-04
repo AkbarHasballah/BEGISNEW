@@ -188,7 +188,7 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
 	}
-	var auth User
+	/*var auth User
 	header := r.Header.Get("token")
 	if header == "" {
 		response.Message = "Header token tidak ditemukan"
@@ -210,18 +210,17 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 	if tokenrole != "admin" && tokenrole != "user" {
 		response.Message = "Anda tidak memiliki akses"
 		return GCFReturnStruct(response)
-	}
+	}*/
 
 	geowithin, err := GeoWithin(mconn, collname, geospatial)
-	if err != nil {
+	/*if err != nil {
 		response.Message = "Ga ada Geojson Di dalam polygon coyz: " + err.Error()
 		return GCFReturnStruct(response)
-	}
+	}*/
 	result := GeojsonNameString(geowithin)
 	if result == "" {
 		response.Message = "Geojson yang berada di polygon nya  adalah" + result
 	}
-	response.Message = "Berhasil input data"
 	return GCFReturnStruct(geowithin)
 }
 
@@ -401,7 +400,7 @@ func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.
 	}
 	result := GeojsonNameString(center)
 	if result == "" {
-		response.Message = "Geojson point yang berada diarea dari box anda adalah" + strconv.FormatFloat(geospatial.Radius,'f', -1, 64)+ "adalah" +result
+		response.Message = "Geojson point yang berada diarea dari lingkaran anda adalah" + strconv.FormatFloat(geospatial.Radius,'f', -1, 64)+ "adalah" +result
 	}
 	return GCFReturnStruct(center)
 }

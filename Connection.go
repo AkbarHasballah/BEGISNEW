@@ -360,10 +360,10 @@ func GetGeoIntersectsDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname str
 	}
 	return result, nil
 }
-func GetGeoWithinDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string, locfield string, geospatial Geospatial) (result []T, err error) {
+func GetGeoWithinDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
 		locfield: bson.M{
-			"$geoIntersects": bson.M{
+			"$geoWithin": bson.M{
 				"$geometry": bson.M{
 					"type":        geospatial.Type,
 					"coordinates": geospatial.Coordinates,
@@ -375,13 +375,13 @@ func GetGeoWithinDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string,
 	ctx := context.TODO()
 	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("GetGeoIntersectsDoc: %v\n", err)
+		fmt.Printf("GetGeoWithinDoc: %v\n", err)
 		return nil, err
 	}
 	defer cur.Close(ctx)
 	err = cur.All(ctx, &result)
 	if err != nil {
-		fmt.Printf("GetGeoIntersectsDoc Cursor Err: %v\n", err)
+		fmt.Printf("GetGeoWithinDoc Cursor Err: %v\n", err)
 		return nil, err
 	}
 	return result, nil
