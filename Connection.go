@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/AkbarHasballah/GISNEW/models"
 	"github.com/aiteung/atdb"
@@ -336,7 +335,7 @@ func GetAllDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collection string) (do
 	return
 }
 
-func GetGeoIntersectsDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string,locfield string, geospatial Geospatial) (result []T,err error) {
+func GetGeoIntersectsDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
 		locfield: bson.M{
 			"$geoIntersects": bson.M{
@@ -361,234 +360,160 @@ func GetGeoIntersectsDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname str
 	}
 	return result, nil
 }
-func GetGeoWithinDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polygon) (result string) {
+func GetGeoWithinDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname string, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
-			"$geoWithin": bson.M{
+		locfield: bson.M{
+			"$geoIntersects": bson.M{
 				"$geometry": bson.M{
-					"type":        "Polygon",
-					"coordinates": coordinates.Coordinates,
+					"type":        geospatial.Type,
+					"coordinates": geospatial.Coordinates,
 				},
 			},
 		},
 	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
+
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("GeoWithin: %v\n", err)
+		fmt.Printf("GetGeoIntersectsDoc: %v\n", err)
+		return nil, err
 	}
-	return "Koordinat anda berada di " + doc.Properties.Name
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetGeoIntersectsDoc Cursor Err: %v\n", err)
+		return nil, err
+	}
+	return result, nil
 }
 
-func GetNearDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
+func GetNearDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$near": bson.M{
 				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": coordinates.Coordinates,
+					"type":        geospatial.Type,
+					"coordinates": geospatial.Coordinates,
 				},
-				"$maxDistance": 1000,
+				"$maxDistance": geospatial.Max,
+				"$minDistance": geospatial.Min,
 			},
 		},
 	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
+
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("Near: %v\n", err)
+		fmt.Printf("GetNearDoc: %v\n", err)
+		return nil, err
 	}
-	return "Koordinat anda dekat dengan " + doc.Properties.Name
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetNearDoc Cursor Err: %v\n", err)
+		return nil, err
+	}
+	return result, nil
 }
 
-func GetNearSphereDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
+func GetNearSphereDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$nearSphere": bson.M{
 				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": coordinates.Coordinates,
+					"type":        geospatial.Type,
+					"coordinates": geospatial.Coordinates,
 				},
-				"$maxDistance": 1000,
+				"$maxDistance": geospatial.Max,
+				"$minDistance": geospatial.Min,
 			},
 		},
 	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
+
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("NearSphere: %v\n", err)
+		fmt.Printf("GetNearSphereDoc: %v\n", err)
+		return nil, err
 	}
-	return "Koordinat anda dekat dengan " + doc.Properties.Name
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetNearSphereDoc Cursor Err: %v\n", err)
+		return nil, err
+	}
+	return result, nil
 }
-func GetBoxDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polyline) (result string) {
+
+func GetBoxDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$geoWithin": bson.M{
-				"$box": coordinates.Coordinates,
+				"$box": geospatial.Coordinates,
 			},
 		},
 	}
 
-	var docs []FullGeoJson
-	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(context.TODO(), filter)
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("Box: %v\n", err)
-		return ""
+		fmt.Printf("GetBoxDoc: %v\n", err)
+		return nil, err
 	}
-
-	defer cur.Close(context.TODO())
-
-	for cur.Next(context.TODO()) {
-		var doc FullGeoJson
-		err := cur.Decode(&doc)
-		if err != nil {
-			fmt.Printf("Decode Err: %v\n", err)
-			continue
-		}
-		docs = append(docs, doc)
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetBoxDoc Cursor Err: %v\n", err)
+		return nil, err
 	}
-
-	if err := cur.Err(); err != nil {
-		fmt.Printf("Cursor Err: %v\n", err)
-		return ""
-	}
-
-	// Ambil nilai properti Name dari setiap dokumen
-	var names []string
-	for _, doc := range docs {
-		names = append(names, doc.Properties.Name)
-	}
-
-	// Gabungkan nilai-nilai dengan koma
-	result = strings.Join(names, ", ")
-
-	return result
+	return result, nil
 }
-func GetCenterDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
+func GetCenterDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$geoWithin": bson.M{
-				"$center": []interface{}{coordinates.Coordinates, 0.003},
+				"$center": []interface{}{geospatial.Coordinates, geospatial.Radius},
 			},
 		},
 	}
 
-	var docs []FullGeoJson
-	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(context.TODO(), filter)
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("Box: %v\n", err)
-		return ""
+		fmt.Printf("GetCenterDoc: %v\n", err)
+		return nil, err
 	}
-
-	defer cur.Close(context.TODO())
-
-	for cur.Next(context.TODO()) {
-		var doc FullGeoJson
-		err := cur.Decode(&doc)
-		if err != nil {
-			fmt.Printf("Decode Err: %v\n", err)
-			continue
-		}
-		docs = append(docs, doc)
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
+	if err != nil {
+		fmt.Printf("GetCenterDoc Cursor Err: %v\n", err)
+		return nil, err
 	}
-
-	if err := cur.Err(); err != nil {
-		fmt.Printf("Cursor Err: %v\n", err)
-		return ""
-	}
-
-	// Ambil nilai properti Name dari setiap dokumen
-	var names []string
-	for _, doc := range docs {
-		names = append(names, doc.Properties.Name)
-	}
-
-	// Gabungkan nilai-nilai dengan koma
-	result = strings.Join(names, ", ")
-
-	return result
+	return result, nil
 }
 
-func GetCenterSphereDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
+func GetCenterSphereDoc[T any](MONGOCONNSTRINGENV *mongo.Database, collname, locfield string, geospatial Geospatial) (result []T, err error) {
 	filter := bson.M{
-		"geometry": bson.M{
+		locfield: bson.M{
 			"$geoWithin": bson.M{
-				"$centerSphere": []interface{}{coordinates.Coordinates, 0.00003},
+				"$centerSphere": []interface{}{geospatial.Coordinates, geospatial.Radius},
 			},
 		},
 	}
 
-	var docs []FullGeoJson
-	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(context.TODO(), filter)
+	ctx := context.TODO()
+	cur, err := MONGOCONNSTRINGENV.Collection(collname).Find(ctx, filter)
 	if err != nil {
-		fmt.Printf("Box: %v\n", err)
-		return ""
+		fmt.Printf("GetCenterSphereDoc: %v\n", err)
+		return nil, err
 	}
-
-	defer cur.Close(context.TODO())
-
-	for cur.Next(context.TODO()) {
-		var doc FullGeoJson
-		err := cur.Decode(&doc)
-		if err != nil {
-			fmt.Printf("Decode Err: %v\n", err)
-			continue
-		}
-		docs = append(docs, doc)
-	}
-
-	if err := cur.Err(); err != nil {
-		fmt.Printf("Cursor Err: %v\n", err)
-		return ""
-	}
-
-	// Ambil nilai properti Name dari setiap dokumen
-	var names []string
-	for _, doc := range docs {
-		names = append(names, doc.Properties.Name)
-	}
-
-	// Gabungkan nilai-nilai dengan koma
-	result = strings.Join(names, ", ")
-
-	return result
-}
-func GetMaxDistanceDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
-	filter := bson.M{
-		"geometry": bson.M{
-			"$near": bson.M{
-				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": coordinates.Coordinates,
-				},
-				"$maxDistance": coordinates.Max,
-			},
-		},
-	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
+	defer cur.Close(ctx)
+	err = cur.All(ctx, &result)
 	if err != nil {
-		fmt.Printf("Near: %v\n", err)
+		fmt.Printf("GetCenterSphereDoc Cursor Err: %v\n", err)
+		return nil, err
 	}
-	return "Koordinat anda dekat dengan " + doc.Properties.Name
-}
-func GetMinDistanceDoc(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) (result string) {
-	filter := bson.M{
-		"geometry": bson.M{
-			"$near": bson.M{
-				"$geometry": bson.M{
-					"type":        "Point",
-					"coordinates": coordinates.Coordinates,
-				},
-				"$minDistance": coordinates.Min,
-			},
-		},
-	}
-	var doc FullGeoJson
-	err := MONGOCONNSTRINGENV.Collection(collname).FindOne(context.TODO(), filter).Decode(&doc)
-	if err != nil {
-		fmt.Printf("Near: %v\n", err)
-	}
-	return "Koordinat anda dekat dengan " + doc.Properties.Name
+	return result, nil
 }
 func DeleteOneDoc(MONGOCONNSTRINGENV *mongo.Database, collection string, filter bson.M) (result *mongo.DeleteResult) {
 	result, err := MONGOCONNSTRINGENV.Collection(collection).DeleteOne(context.TODO(), filter)

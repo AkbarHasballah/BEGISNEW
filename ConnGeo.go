@@ -24,37 +24,27 @@ func GetAllBangunan(MONGOCONNSTRINGENV *mongo.Database, collname string) []GeoJs
 func GeoIntersects(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial)([]FullGeoJson, error){
 	return GetGeoIntersectsDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry",geospatial)
 }
-
-func GeoWithin(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polygon) string {
-	return GetGeoWithinDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func GeoWithin(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetGeoWithinDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
+}
+func Near(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetNearDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
 }
 
-func Near(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetNearDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func NearSphere(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetNearSphereDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
 }
 
-func NearSphere(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetNearSphereDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func Box(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetBoxDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
 }
 
-func Box(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Polyline) string {
-	return GetBoxDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func Center(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetCenterDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
 }
 
-func Center(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetCenterDoc(MONGOCONNSTRINGENV, collname, coordinates)
-}
-
-func CenterSphere(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetCenterSphereDoc(MONGOCONNSTRINGENV, collname, coordinates)
-}
-
-func MaxDistance(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetMaxDistanceDoc(MONGOCONNSTRINGENV, collname, coordinates)
-}
-
-func MinDistance(MONGOCONNSTRINGENV *mongo.Database, collname string, coordinates Point) string {
-	return GetMinDistanceDoc(MONGOCONNSTRINGENV, collname, coordinates)
+func CenterSphere(MONGOCONNSTRINGENV *mongo.Database, collname string, geospatial Geospatial) ([]FullGeoJson, error) {
+	return GetCenterSphereDoc[FullGeoJson](MONGOCONNSTRINGENV, collname, "geometry", geospatial)
 }
 
 // Update

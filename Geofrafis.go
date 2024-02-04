@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -181,8 +182,8 @@ func GeojsonNameString(geojson []FullGeoJson) (result string) {
 func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
-	var coordinate Polygon
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -211,7 +212,15 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 		return GCFReturnStruct(response)
 	}
 
-	geowithin := GeoWithin(mconn, collname, coordinate)
+	geowithin, err := GeoWithin(mconn, collname, geospatial)
+	if err != nil {
+		response.Message = "Ga ada Geojson Di dalam polygon coyz: " + err.Error()
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(geowithin)
+	if result == "" {
+		response.Message = "Geojson yang berada di polygon nya  adalah" + result
+	}
 	response.Message = "Berhasil input data"
 	return GCFReturnStruct(geowithin)
 }
@@ -219,8 +228,8 @@ func PostGeoWithin(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *ht
 func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection2dsphere(MONGOCONNSTRINGENV, dbname, collname)
 	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -249,16 +258,23 @@ func PostNear(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Re
 		response.Message = "Anda tidak memiliki akses"
 		return GCFReturnStruct(response)
 	}
-
-	near := Near(mconn, collname, coordinate)
+	near, err := Near(mconn, collname, geospatial)
+	if err != nil {
+		response.Message = " Tidak terdapat geojson yang berdekatan pada koordinat anda " + err.Error()
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(near)
+	if result == "" {
+		response.Message = "Geojson yang terdekat dari koordinat anda adalah" + result
+	}
 	return GCFReturnStruct(near)
 }
 
 func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection2dsphere(MONGOCONNSTRINGENV, dbname, collname)
 	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -288,15 +304,23 @@ func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *h
 		return GCFReturnStruct(response)
 	}
 
-	nearsphere := NearSphere(mconn, collname, coordinate)
+	nearsphere, err:= NearSphere(mconn, collname, geospatial)
+	if err != nil {
+		response.Message = " Tidak terdapat geojson yang berdekatan pada koordinat anda " + err.Error()
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(nearsphere)
+	if result == "" {
+		response.Message = "Geojson yang terdekat dari koordinat anda adalah" + result
+	}
 	return GCFReturnStruct(nearsphere)
 }
 
 func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
-	var coordinate Polyline
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -324,16 +348,23 @@ func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Req
 		response.Message = "Anda tidak memiliki akses"
 		return GCFReturnStruct(response)
 	}
-
-	box := Box(mconn, collname, coordinate)
+	box, err:= Box(mconn, collname, geospatial)
+	if err != nil {
+		response.Message = " Tidak terdapat geojson point di box anda " + err.Error()
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(box)
+	if result == "" {
+		response.Message = "Geojson point yang berada diarea dari box anda adalah" + result
+	}
 	return GCFReturnStruct(box)
 }
 
 func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var coordinate Point
+	var geospatial Geospatial
 	var response BeriPesan
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -362,15 +393,25 @@ func PostCenter(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.
 		return GCFReturnStruct(response)
 	}
 
-	box := Center(mconn, collname, coordinate)
-	return GCFReturnStruct(box)
+	center, err := Center(mconn, collname, geospatial)
+	
+	if err != nil {
+		response.Message = " Tidak terdapat geojson point didalam lingkaran dengan radius " + strconv.FormatFloat(geospatial.Radius,'f',-1,64)
+		return GCFReturnStruct(response)
+	}
+	result := GeojsonNameString(center)
+	if result == "" {
+		response.Message = "Geojson point yang berada diarea dari box anda adalah" + strconv.FormatFloat(geospatial.Radius,'f', -1, 64)+ "adalah" +result
+	}
+	return GCFReturnStruct(center)
 }
+
 
 func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	var geospatial Geospatial
+	err := json.NewDecoder(r.Body).Decode(&geospatial)
 	if err != nil {
 		response.Message = "Error parsing application/json: " + err.Error()
 		return GCFReturnStruct(response)
@@ -398,82 +439,16 @@ func PostCenterSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r 
 		response.Message = "Anda tidak memiliki akses"
 		return GCFReturnStruct(response)
 	}
-	box := CenterSphere(mconn, collname, coordinate)
-	return GCFReturnStruct(box)
-}
-
-func PostMaxDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
-	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
+	centersphere, err:= CenterSphere(mconn, collname, geospatial)
 	if err != nil {
-		response.Message = "Error parsing application/json: " + err.Error()
+		response.Message = " Tidak terdapat geojson point didalam lingkaran dengan radius " + strconv.FormatFloat(geospatial.Radius,'f',-1,64)
 		return GCFReturnStruct(response)
 	}
-	var auth User
-	header := r.Header.Get("token")
-	if header == "" {
-		response.Message = "Header token tidak ditemukan"
-		return GCFReturnStruct(response)
+	result := GeojsonNameString(centersphere)
+	if result == "" {
+		response.Message = "Geojson point yang berada diarea dari box anda adalah" + strconv.FormatFloat(geospatial.Radius,'f', -1, 64)+ "adalah" +result
 	}
-
-	// Decode token to get user details
-
-	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
-	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
-	auth.Username = tokenusername
-
-	if tokenusername == "" || tokenrole == "" {
-		response.Message = "Hasil decode tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
-
-	// Check if the user has admin or user privileges
-	if tokenrole != "admin" && tokenrole != "user" {
-		response.Message = "Anda tidak memiliki akses"
-		return GCFReturnStruct(response)
-	}
-
-	box := MaxDistance(mconn, collname, coordinate)
-	return GCFReturnStruct(box)
-}
-
-func PostMinDistance(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
-	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var response BeriPesan
-	var coordinate Point
-	err := json.NewDecoder(r.Body).Decode(&coordinate)
-	if err != nil {
-		response.Message = "Error parsing application/json: " + err.Error()
-		return GCFReturnStruct(response)
-	}
-	var auth User
-	header := r.Header.Get("token")
-	if header == "" {
-		response.Message = "Header token tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
-
-	// Decode token to get user details
-
-	tokenusername := DecodeGetUsername(os.Getenv(publickey), header)
-	tokenrole := DecodeGetRole(os.Getenv(publickey), header)
-	auth.Username = tokenusername
-
-	if tokenusername == "" || tokenrole == "" {
-		response.Message = "Hasil decode tidak ditemukan"
-		return GCFReturnStruct(response)
-	}
-
-	// Check if the user has admin or user privileges
-	if tokenrole != "admin" && tokenrole != "user" {
-		response.Message = "Anda tidak memiliki akses"
-		return GCFReturnStruct(response)
-	}
-
-	box := MinDistance(mconn, collname, coordinate)
-	return GCFReturnStruct(box)
+	return GCFReturnStruct(centersphere)
 }
 
 func AmbilDataGeojson(MONGOCONNSTRINGENV, dbname, collname string) []GeoJson {

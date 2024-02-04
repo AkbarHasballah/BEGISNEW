@@ -27,6 +27,6 @@ func HelloHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Call GeoIntersects and check for errors
 	// Tulis respons Anda ke Writer seperti yang Anda lakukan sebelumnya.
-	response := BEGIS.PostGeoIntersects("publickey","MONGOCONNSTRINGENV", "MigrasiData", "JsonMongo",r)
+	response := BEGIS.PostNear("publickey","MONGOCONNSTRINGENV", "MigrasiData", "JsonMongo",r)
 	fmt.Fprintf(w, response)
 }
