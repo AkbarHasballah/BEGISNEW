@@ -317,7 +317,6 @@ func PostNearSphere(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *h
 	result = "Geojson yang terdekat dari koordinat anda adalah " + result + ". Jumlah geojson terdekat: " + strconv.Itoa(numNearby)
 	return GCFReturnStruct(result)
 }
-
 func PostBox(publickey, MONGOCONNSTRINGENV, dbname, collname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	var response BeriPesan
